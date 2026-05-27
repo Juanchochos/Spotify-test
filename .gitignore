@@ -1,0 +1,11 @@
+# Dependencies
+node_modules/
+dist/
+.angular/
+
+# Local Environment Keys
+.env
+
+# Operating System Files
+.DS_Store
+Thumbs.db
