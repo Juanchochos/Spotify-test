@@ -1,7 +1,14 @@
 export const clientId = "0fd697bedac14490886e3edb55026362"; // Replace with your client id
+const isBrowser = typeof globalThis !== 'undefined' && typeof globalThis.window !== 'undefined' && typeof globalThis.document !== 'undefined';
+const browserWindow = isBrowser ? globalThis.window : undefined;
+const browserDocument = isBrowser ? globalThis.document : undefined;
 
 export async function handleSpotifyCallback() {
-    const params = new URLSearchParams(window.location.search);
+    if (!isBrowser) {
+        return;
+    }
+
+    const params = new URLSearchParams(browserWindow!.location.search);
     const code = params.get("code");
 
     if (!code) {
@@ -15,7 +22,11 @@ export async function handleSpotifyCallback() {
 }
 
 export async function initializeApp() {
-    const params = new URLSearchParams(window.location.search);
+    if (!isBrowser) {
+        return;
+    }
+
+    const params = new URLSearchParams(browserWindow!.location.search);
     const code = params.get("code");
 
     if (!code) {
@@ -30,10 +41,14 @@ export async function initializeApp() {
 }
 
 export async function redirectToAuthCodeFlow() {
+    if (!isBrowser) {
+        return;
+    }
+
     const verifier = generateCodeVerifier(128);
     const challenge = await generateCodeChallenge(verifier);
 
-    localStorage.setItem("verifier", verifier);
+    browserWindow!.localStorage.setItem("verifier", verifier);
 
     const params = new URLSearchParams();
     params.append("client_id", clientId);
@@ -43,7 +58,7 @@ export async function redirectToAuthCodeFlow() {
     params.append("code_challenge_method", "S256");
     params.append("code_challenge", challenge);
 
-    document.location = `https://accounts.spotify.com/authorize?${params.toString()}`;
+    browserWindow!.location.href = `https://accounts.spotify.com/authorize?${params.toString()}`;
 
 }
 
@@ -58,8 +73,12 @@ function generateCodeVerifier(length: number) {
 }
 
 async function generateCodeChallenge(codeVerifier: string) {
+    if (!isBrowser) {
+        throw new Error('Browser-only operation');
+    }
+
     const data = new TextEncoder().encode(codeVerifier);
-    const digest = await window.crypto.subtle.digest('SHA-256', data);
+    const digest = await browserWindow!.crypto.subtle.digest('SHA-256', data);
     return btoa(String.fromCharCode.apply(null, [...new Uint8Array(digest)]))
         .replace(/\+/g, '-')
         .replace(/\//g, '_')
@@ -67,7 +86,11 @@ async function generateCodeChallenge(codeVerifier: string) {
 }
 
 export async function getAccessToken(clientId: string, code: string): Promise<string> {
-    const verifier = localStorage.getItem("verifier");
+    if (!isBrowser) {
+        throw new Error('Browser-only operation');
+    }
+
+    const verifier = browserWindow!.localStorage.getItem("verifier");
 
     const params = new URLSearchParams();
     params.append("client_id", clientId);
@@ -95,21 +118,25 @@ async function fetchProfile(token: string): Promise<any> {
 }
 
 function populateUI(profile: any) {
-    document.getElementById("displayName")!.innerText = profile.display_name;
-    if (profile.images?.[0]) {
-        const profileImage = new Image(200, 200);
-        profileImage.src = profile.images[0].url;
-        document.getElementById("avatar")!.appendChild(profileImage);
+    if (!isBrowser) {
+        return;
     }
-    document.getElementById("id")!.innerText = profile.id;
-    document.getElementById("email")!.innerText = profile.email;
-    document.getElementById("uri")!.innerText = profile.uri;
-    document.getElementById("uri")!.setAttribute("href", profile.external_urls.spotify);
-    document.getElementById("url")!.innerText = profile.href;
-    document.getElementById("url")!.setAttribute("href", profile.href);
-    document.getElementById("imgUrl")!.innerText = profile.images?.[0]?.url ?? '(no profile image)';
+
+    browserDocument!.getElementById("displayName")!.innerText = profile.display_name;
+    if (profile.images?.[0]) {
+        const profileImage = new browserWindow!.Image(200, 200);
+        profileImage.src = profile.images[0].url;
+        browserDocument!.getElementById("avatar")!.appendChild(profileImage);
+    }
+    browserDocument!.getElementById("id")!.innerText = profile.id;
+    browserDocument!.getElementById("email")!.innerText = profile.email;
+    browserDocument!.getElementById("uri")!.innerText = profile.uri;
+    browserDocument!.getElementById("uri")!.setAttribute("href", profile.external_urls.spotify);
+    browserDocument!.getElementById("url")!.innerText = profile.href;
+    browserDocument!.getElementById("url")!.setAttribute("href", profile.href);
+    browserDocument!.getElementById("imgUrl")!.innerText = profile.images?.[0]?.url ?? '(no profile image)';
 }
 
-if (window.location.pathname.endsWith('/spotify-user.html')) {
+if (isBrowser && browserWindow?.location.pathname.endsWith('/spotify-user.html')) {
     initializeApp().catch((err) => console.error('Spotify page init failed', err));
 }
