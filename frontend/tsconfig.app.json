@@ -10,8 +10,9 @@
   },
   "include": [
     "src/**/*.ts"
-, "public/script.ts"  ],
+  ],
   "exclude": [
     "src/**/*.spec.ts"
   ]
 }
+
