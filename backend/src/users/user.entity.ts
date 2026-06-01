@@ -14,6 +14,12 @@ export class User {
   @Column()
   passwordHash: string;
 
+  @Column({ nullable: true, type: 'simple-json' })
+  spotifyProfile: any | null;
+
+  @Column({ nullable: true })
+  spotifyId: string | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }

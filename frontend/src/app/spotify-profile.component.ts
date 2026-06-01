@@ -1,5 +1,6 @@
 import { Component, OnInit, signal } from '@angular/core';
 import { SpotifyAuthService } from './spotify-auth.service';
+import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'spotify-profile',
@@ -44,9 +45,32 @@ export class SpotifyProfileComponent implements OnInit {
   error = signal<string | null>(null);
   loading = signal(true);
 
-  constructor(private spotifyAuth: SpotifyAuthService) {}
+  constructor(private spotifyAuth: SpotifyAuthService, private auth: AuthService) {}
 
   async ngOnInit() {
+    const authToken = this.auth.getToken();
+
+    // 1. Local cache with valid token — show immediately
+    if (this.spotifyAuth.isConnected()) {
+      const cached = this.spotifyAuth.getStoredProfile();
+      if (cached) {
+        this.profile.set(cached);
+        this.loading.set(false);
+        return;
+      }
+    }
+
+    // 2. No local cache — try the backend (covers new device logins)
+    if (authToken) {
+      const backendProfile = await this.spotifyAuth.loadProfileFromBackend(authToken);
+      if (backendProfile) {
+        this.profile.set(backendProfile);
+        this.loading.set(false);
+        return;
+      }
+    }
+
+    // 3. Nothing stored — start OAuth flow
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
 
@@ -59,6 +83,10 @@ export class SpotifyProfileComponent implements OnInit {
       const token = await this.spotifyAuth.getAccessToken(code);
       const profile = await this.spotifyAuth.fetchProfile(token);
       this.profile.set(profile);
+      // Persist to backend so other devices can load it
+      if (authToken) {
+        await this.spotifyAuth.saveProfileToBackend(authToken, profile);
+      }
     } catch (err) {
       console.error(err);
       this.error.set('Unable to load Spotify profile. Please try again.');

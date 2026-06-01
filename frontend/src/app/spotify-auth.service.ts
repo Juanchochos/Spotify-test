@@ -1,11 +1,68 @@
 import { Injectable } from '@angular/core';
 
+const API = 'http://127.0.0.1:3000/api/auth';
+
 @Injectable({ providedIn: 'root' })
 export class SpotifyAuthService {
   private readonly clientId = '0fd697bedac14490886e3edb55026362';
   private readonly redirectUri = 'http://127.0.0.1:5173/spotify-user';
   private readonly scope = 'user-read-private user-read-email';
   private readonly verifierStorageKey = 'spotify_code_verifier';
+  private readonly tokenKey = 'spotify_access_token';
+  private readonly tokenExpiryKey = 'spotify_token_expiry';
+  private readonly profileKey = 'spotify_profile';
+
+  isConnected(): boolean {
+    const token = localStorage.getItem(this.tokenKey);
+    const expiry = Number(localStorage.getItem(this.tokenExpiryKey) ?? 0);
+    return !!token && Date.now() < expiry;
+  }
+
+  getStoredProfile(): any | null {
+    const raw = localStorage.getItem(this.profileKey);
+    return raw ? JSON.parse(raw) : null;
+  }
+
+  async loadProfileFromBackend(authToken: string): Promise<any | null> {
+    const res = await fetch(`${API}/spotify-profile`, {
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.profile) {
+      localStorage.setItem(this.profileKey, JSON.stringify(data.profile));
+    }
+    return data.profile ?? null;
+  }
+
+  async saveProfileToBackend(authToken: string, profile: any): Promise<void> {
+    await fetch(`${API}/spotify-profile`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${authToken}`,
+      },
+      body: JSON.stringify({ profile }),
+    });
+  }
+
+  async disconnectFromBackend(authToken: string): Promise<void> {
+    await fetch(`${API}/spotify-profile`, {
+      method: 'DELETE',
+      headers: { Authorization: `Bearer ${authToken}` },
+    });
+  }
+
+  disconnect(): void {
+    localStorage.removeItem(this.tokenKey);
+    localStorage.removeItem(this.tokenExpiryKey);
+    localStorage.removeItem(this.profileKey);
+  }
+
+  private saveToken(token: string, expiresIn: number): void {
+    localStorage.setItem(this.tokenKey, token);
+    localStorage.setItem(this.tokenExpiryKey, String(Date.now() + expiresIn * 1000));
+  }
 
   async redirectToAuthCodeFlow(): Promise<void> {
     const verifier = this.generateCodeVerifier(128);
@@ -52,6 +109,7 @@ export class SpotifyAuthService {
     }
 
     const json = await result.json();
+    this.saveToken(json.access_token, json.expires_in ?? 3600);
     return json.access_token;
   }
 
@@ -66,7 +124,9 @@ export class SpotifyAuthService {
       throw new Error(`Spotify profile fetch failed: ${errorText}`);
     }
 
-    return result.json();
+    const profile = await result.json();
+    localStorage.setItem(this.profileKey, JSON.stringify(profile));
+    return profile;
   }
 
   private generateCodeVerifier(length: number): string {

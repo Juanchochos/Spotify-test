@@ -30,4 +30,18 @@ export class UsersService {
   findById(id: number): Promise<User | null> {
     return this.usersRepository.findOneBy({ id });
   }
+
+  async saveSpotifyProfile(userId: number, profile: any): Promise<void> {
+    await this.usersRepository.update(userId, {
+      spotifyId: profile.id,
+      spotifyProfile: profile,
+    });
+  }
+
+  async clearSpotifyProfile(userId: number): Promise<void> {
+    await this.usersRepository.update(userId, {
+      spotifyId: null,
+      spotifyProfile: null,
+    });
+  }
 }
