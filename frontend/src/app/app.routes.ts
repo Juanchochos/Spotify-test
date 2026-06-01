@@ -4,6 +4,8 @@ import { SpotifyProfileComponent } from './spotify-profile.component';
 import { LoginComponent } from './auth/login.component';
 import { RegisterComponent } from './auth/register.component';
 import { DashboardComponent } from './auth/dashboard.component';
+import { CreatePostComponent } from './posts/create-post.component';
+import { ProfileComponent } from './posts/profile.component';
 import { authGuard } from './auth/auth.guard';
 
 export const routes: Routes = [
@@ -12,4 +14,6 @@ export const routes: Routes = [
   { path: 'register', component: RegisterComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'spotify-user', component: SpotifyProfileComponent },
+  { path: 'create-post', component: CreatePostComponent, canActivate: [authGuard] },
+  { path: 'profile', component: ProfileComponent, canActivate: [authGuard] },
 ];

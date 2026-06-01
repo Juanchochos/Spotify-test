@@ -2,6 +2,18 @@ import { Injectable } from '@angular/core';
 
 const API = 'http://127.0.0.1:3000/api/auth';
 
+export interface SpotifyTrack {
+  id: string;
+  name: string;
+  artists: Array<{ name: string }>;
+  album: {
+    name: string;
+    images: Array<{ url: string; width: number; height: number }>;
+  };
+  external_urls: { spotify: string };
+  duration_ms: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SpotifyAuthService {
   private readonly clientId = '0fd697bedac14490886e3edb55026362';
@@ -11,6 +23,33 @@ export class SpotifyAuthService {
   private readonly tokenKey = 'spotify_access_token';
   private readonly tokenExpiryKey = 'spotify_token_expiry';
   private readonly profileKey = 'spotify_profile';
+
+  getToken(): string | null {
+    return localStorage.getItem(this.tokenKey);
+  }
+
+  async searchTracks(query: string): Promise<SpotifyTrack[]> {
+    const token = this.getToken();
+    if (!token) throw new Error('No Spotify access token available.');
+
+    const params = new URLSearchParams({ q: query, type: 'track', limit: '10' });
+    const res = await fetch(`https://api.spotify.com/v1/search?${params.toString()}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (res.status === 401) {
+      this.disconnect();
+      throw new Error('Spotify session expired. Please reconnect Spotify.');
+    }
+
+    if (!res.ok) {
+      const errText = await res.text();
+      throw new Error(`Spotify search failed: ${errText}`);
+    }
+
+    const data = await res.json();
+    return data.tracks.items as SpotifyTrack[];
+  }
 
   isConnected(): boolean {
     const token = localStorage.getItem(this.tokenKey);

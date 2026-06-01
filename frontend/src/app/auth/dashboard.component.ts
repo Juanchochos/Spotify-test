@@ -22,6 +22,17 @@ import { SpotifyAuthService } from '../spotify-auth.service';
       }
 
       <button (click)="auth.logout()" style="padding:8px 16px; margin-left:12px;">Log out</button>
+
+      <hr style="margin:24px 0;" />
+
+      <nav style="display:flex; gap:12px; flex-wrap:wrap;">
+        <a routerLink="/create-post" style="padding:8px 16px; text-decoration:none; border:1px solid #1db954; border-radius:4px; color:#1db954;">
+          + Create Post
+        </a>
+        <a routerLink="/profile" style="padding:8px 16px; text-decoration:none; border:1px solid #ccc; border-radius:4px;">
+          My Profile
+        </a>
+      </nav>
     </main>
   `,
 })
