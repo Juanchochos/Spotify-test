@@ -2,7 +2,7 @@
 
 A full-stack web app for creating music posts backed by Spotify track data. Users register, log in, connect Spotify, search for tracks, and publish posts with up to 5 songs each.
 
-**Stack:** Angular 21 frontend · NestJS 10 backend · SQLite via TypeORM
+**Stack:** Angular 21 frontend (CSR) · NestJS 10 backend · SQLite via TypeORM
 
 ## Features
 
@@ -16,7 +16,7 @@ A full-stack web app for creating music posts backed by Spotify track data. User
 
 ```
 Spotify-test/
-├── frontend/   Angular 21 app (SSR-enabled, standalone components)
+├── frontend/   Angular 21 SPA (standalone components)
 └── backend/    NestJS app with TypeORM + SQLite
 ```
 
@@ -36,11 +36,33 @@ Install dependencies for both projects:
 # Backend
 cd backend
 npm install
+cp .env.example .env
 
 # Frontend
 cd ../frontend
 npm install
 ```
+
+### Configuration
+
+**Backend** — copy [backend/.env.example](backend/.env.example) to `backend/.env` and adjust if needed:
+
+| Variable | Default | Description |
+|----------|---------|-------------|
+| `PORT` | `3000` | API server port |
+| `HOST` | `127.0.0.1` | Bind address |
+| `JWT_SECRET` | (required in prod) | Secret for signing JWTs |
+| `DATABASE_PATH` | `db.sqlite` | SQLite file path |
+
+**Frontend** — edit [frontend/src/environments/environment.ts](frontend/src/environments/environment.ts):
+
+| Field | Description |
+|-------|-------------|
+| `apiBaseUrl` | Backend API root (e.g. `http://127.0.0.1:3000/api`) |
+| `spotifyClientId` | Your Spotify app Client ID |
+| `spotifyRedirectUri` | Must match a Redirect URI in your Spotify dashboard |
+
+Production builds use [frontend/src/environments/environment.prod.ts](frontend/src/environments/environment.prod.ts) automatically.
 
 ---
 
@@ -55,17 +77,17 @@ cd backend
 npm run start:dev
 ```
 
-The backend runs at **http://127.0.0.1:3000**
+The backend runs at **http://127.0.0.1:3000** (or whatever you set in `.env`).
 
-The SQLite database file (`db.sqlite`) is created automatically in the `backend/` folder on first run.
+The SQLite database file is created automatically in the `backend/` folder on first run.
 
 ### Terminal 2 — Frontend (Angular)
 
-> **Important:** The Spotify redirect URI is hardcoded to `http://127.0.0.1:5173`. You must serve the frontend on that exact host and port.
+The dev server defaults to **http://127.0.0.1:5173** (matches the Spotify redirect URI).
 
 ```bash
 cd frontend
-npx ng serve --host 127.0.0.1 --port 5173
+npx ng serve
 ```
 
 Then open **http://127.0.0.1:5173**
@@ -78,7 +100,7 @@ Then open **http://127.0.0.1:5173**
 
 1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
 2. Add `http://127.0.0.1:5173/spotify-user` as a **Redirect URI** in your app settings.
-3. Copy your Client ID into [frontend/src/app/spotify-auth.service.ts](frontend/src/app/spotify-auth.service.ts) (a placeholder is already set).
+3. Copy your Client ID into `spotifyClientId` in [frontend/src/environments/environment.ts](frontend/src/environments/environment.ts).
 
 From the dashboard, connect Spotify, then use **Create Post** to search tracks and build a post.
 
@@ -127,18 +149,6 @@ All backend routes are prefixed with `/api`.
 | GET | `/api/posts/mine` | JWT | List your posts |
 | DELETE | `/api/posts/:id` | JWT | Delete one of your posts |
 
-### Items (scaffold)
-
-Generic CRUD endpoints left over from the project template. Not used by the frontend UI.
-
-| Method | URL | Description |
-|--------|-----|-------------|
-| GET | `/api/items` | List all items |
-| GET | `/api/items/:id` | Get one item |
-| POST | `/api/items` | Create an item |
-| PUT | `/api/items/:id` | Update an item |
-| DELETE | `/api/items/:id` | Delete an item |
-
 ---
 
 ## Building for Production
@@ -160,8 +170,13 @@ npx ng build
 ## Running Tests
 
 ```bash
+# Backend (Jest)
+cd backend
+npm test
+
+# Frontend (Vitest via ng test)
 cd frontend
 npx ng test
 ```
 
-Frontend unit tests use Vitest.
+Both test suites use mocked dependencies — no running servers or database required.

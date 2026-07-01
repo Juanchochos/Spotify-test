@@ -18,11 +18,11 @@ A full framework rewrite is not the goal. Each phase teaches one real skill and 
 
 ### Tasks
 
-- [ ] Move API URL, Spotify client ID, and redirect URI to environment config (no hardcoded `127.0.0.1` in services)
-- [ ] Drop SSR (or ignore it and build CSR-only) — this app is a logged-in SPA; SSR adds complexity without SEO benefit
-- [ ] Remove the unused `items` scaffold from backend and README
-- [ ] Add a `.env.example` documenting required variables
-- [ ] Update README setup instructions to match the new config flow
+- [x] Move API URL, Spotify client ID, and redirect URI to environment config (no hardcoded `127.0.0.1` in services)
+- [x] Drop SSR (or ignore it and build CSR-only) — this app is a logged-in SPA; SSR adds complexity without SEO benefit
+- [x] Remove the unused `items` scaffold from backend and README
+- [x] Add a `.env.example` documenting required variables
+- [x] Update README setup instructions to match the new config flow
 
 ### Done when
 

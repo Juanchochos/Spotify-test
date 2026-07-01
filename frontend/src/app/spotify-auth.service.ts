@@ -1,6 +1,5 @@
-import { Injectable } from '@angular/core';
-
-const API = 'http://127.0.0.1:3000/api/auth';
+import { Inject, Injectable } from '@angular/core';
+import { APP_CONFIG, AppConfig } from './core/app-config';
 
 export interface SpotifyTrack {
   id: string;
@@ -16,13 +15,17 @@ export interface SpotifyTrack {
 
 @Injectable({ providedIn: 'root' })
 export class SpotifyAuthService {
-  private readonly clientId = '0fd697bedac14490886e3edb55026362';
-  private readonly redirectUri = 'http://127.0.0.1:5173/spotify-user';
   private readonly scope = 'user-read-private user-read-email';
   private readonly verifierStorageKey = 'spotify_code_verifier';
   private readonly tokenKey = 'spotify_access_token';
   private readonly tokenExpiryKey = 'spotify_token_expiry';
   private readonly profileKey = 'spotify_profile';
+
+  constructor(@Inject(APP_CONFIG) private config: AppConfig) {}
+
+  private get authApiUrl(): string {
+    return `${this.config.apiBaseUrl}/auth`;
+  }
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
@@ -63,7 +66,7 @@ export class SpotifyAuthService {
   }
 
   async loadProfileFromBackend(authToken: string): Promise<any | null> {
-    const res = await fetch(`${API}/spotify-profile`, {
+    const res = await fetch(`${this.authApiUrl}/spotify-profile`, {
       headers: { Authorization: `Bearer ${authToken}` },
     });
     if (!res.ok) return null;
@@ -75,7 +78,7 @@ export class SpotifyAuthService {
   }
 
   async saveProfileToBackend(authToken: string, profile: any): Promise<void> {
-    await fetch(`${API}/spotify-profile`, {
+    await fetch(`${this.authApiUrl}/spotify-profile`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -86,7 +89,7 @@ export class SpotifyAuthService {
   }
 
   async disconnectFromBackend(authToken: string): Promise<void> {
-    await fetch(`${API}/spotify-profile`, {
+    await fetch(`${this.authApiUrl}/spotify-profile`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${authToken}` },
     });
@@ -110,9 +113,9 @@ export class SpotifyAuthService {
     window.localStorage.setItem(this.verifierStorageKey, verifier);
 
     const params = new URLSearchParams({
-      client_id: this.clientId,
+      client_id: this.config.spotifyClientId,
       response_type: 'code',
-      redirect_uri: this.redirectUri,
+      redirect_uri: this.config.spotifyRedirectUri,
       scope: this.scope,
       code_challenge_method: 'S256',
       code_challenge: challenge,
@@ -129,10 +132,10 @@ export class SpotifyAuthService {
     }
 
     const params = new URLSearchParams({
-      client_id: this.clientId,
+      client_id: this.config.spotifyClientId,
       grant_type: 'authorization_code',
       code,
-      redirect_uri: this.redirectUri,
+      redirect_uri: this.config.spotifyRedirectUri,
       code_verifier: verifier,
     });
 
