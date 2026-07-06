@@ -1,6 +1,6 @@
 export const environment = {
   production: true,
-  apiBaseUrl: 'https://your-api.example.com/api',
-  spotifyClientId: 'YOUR_SPOTIFY_CLIENT_ID',
-  spotifyRedirectUri: 'https://your-app.example.com/spotify-user',
+  apiBaseUrl: '/api',
+  spotifyClientId: '0fd697bedac14490886e3edb55026362',
+  spotifyRedirectUri: 'https://wishare-kqxq.onrender.com/spotify-user',
 };

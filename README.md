@@ -154,15 +154,13 @@ All backend routes are prefixed with `/api`.
 ## Building for Production
 
 ```bash
-# Backend
-cd backend
+# From repo root (builds both apps + copies frontend into backend)
 npm run build
-# Output: backend/dist/
+npm run start
 
-# Frontend
-cd frontend
-npx ng build
-# Output: frontend/dist/
+# Or individually:
+cd backend && npm run build && npm run start:prod
+cd frontend && npx ng build
 ```
 
 ---
@@ -180,3 +178,52 @@ npx ng test
 ```
 
 Both test suites use mocked dependencies — no running servers or database required.
+
+---
+
+## Deployment (Render)
+
+**Live URL:** [https://wishare-kqxq.onrender.com](https://wishare-kqxq.onrender.com)
+
+The production deploy uses **Option A** — one NestJS Web Service serves both the Angular SPA and the API.
+
+### Render settings
+
+| Field | Value |
+|-------|--------|
+| **Root Directory** | *(blank — repo root)* |
+| **Build Command** | `npm run build` |
+| **Start Command** | `npm run start` |
+
+### Render environment variables
+
+| Variable | Value |
+|----------|--------|
+| `NODE_ENV` | `production` |
+| `HOST` | `0.0.0.0` |
+| `JWT_SECRET` | *(long random secret — required)* |
+| `DATABASE_PATH` | `./data/db.sqlite` |
+
+Do **not** set `PORT` — Render injects it automatically.
+
+### Spotify production redirect URI
+
+Add this in your [Spotify Developer Dashboard](https://developer.spotify.com/dashboard):
+
+```
+https://wishare-kqxq.onrender.com/spotify-user
+```
+
+Keep the localhost URI for local dev: `http://127.0.0.1:5173/spotify-user`
+
+### Build from repo root
+
+```bash
+npm run build   # builds frontend, copies to backend/frontend-dist, builds Nest
+npm run start   # runs node dist/main.js in backend
+```
+
+### SQLite on Render
+
+The free tier uses an **ephemeral filesystem** — database data may reset on redeploy. Fine for Phase 2; Phase 3 moves to Postgres.
+

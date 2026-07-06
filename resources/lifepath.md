@@ -42,12 +42,12 @@ This is the **C milestone** — a public URL you can share.
 
 ### Tasks
 
-- [ ] Choose a host with a free tier (Railway, Render, Fly.io, etc.)
-- [ ] Decide deploy shape:
+- [x] Choose a host with a free tier (Railway, Render, Fly.io, etc.)
+- [x] Decide deploy shape:
   - **Option A:** Nest serves the built Angular static files (single service, simpler ops)
   - **Option B:** Two services — static frontend + API (closer to how larger apps split)
-- [ ] Configure production environment variables on the host
-- [ ] Fix CORS on the backend for the production frontend origin
+- [x] Configure production environment variables on the host
+- [x] Fix CORS on the backend for the production frontend origin
 - [ ] Register production redirect URI in Spotify Developer Dashboard
 - [ ] Verify end-to-end: register → login → Spotify connect → create post → view profile
 
