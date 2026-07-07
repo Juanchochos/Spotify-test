@@ -48,8 +48,8 @@ This is the **C milestone** — a public URL you can share.
   - **Option B:** Two services — static frontend + API (closer to how larger apps split)
 - [x] Configure production environment variables on the host
 - [x] Fix CORS on the backend for the production frontend origin
-- [ ] Register production redirect URI in Spotify Developer Dashboard
-- [ ] Verify end-to-end: register → login → Spotify connect → create post → view profile
+- [x] Register production redirect URI in Spotify Developer Dashboard
+- [x] Verify end-to-end: register → login → Spotify connect → create post → view profile
 
 ### Done when
 

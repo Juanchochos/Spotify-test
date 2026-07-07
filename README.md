@@ -4,6 +4,8 @@ A full-stack web app for creating music posts backed by Spotify track data. User
 
 **Stack:** Angular 21 frontend (CSR) · NestJS 10 backend · SQLite via TypeORM
 
+**Live demo:** [https://wishare-kqxq.onrender.com](https://wishare-kqxq.onrender.com)
+
 ## Features
 
 - User registration and login (JWT)
@@ -99,8 +101,16 @@ Then open **http://127.0.0.1:5173**
 ## Spotify Setup
 
 1. Create an app at [developer.spotify.com/dashboard](https://developer.spotify.com/dashboard).
-2. Add `http://127.0.0.1:5173/spotify-user` as a **Redirect URI** in your app settings.
-3. Copy your Client ID into `spotifyClientId` in [frontend/src/environments/environment.ts](frontend/src/environments/environment.ts).
+2. Add these **Redirect URIs** in your app settings:
+
+   | Environment | Redirect URI |
+   |-------------|--------------|
+   | Local dev | `http://127.0.0.1:5173/spotify-user` |
+   | Production (Render) | `https://wishare-kqxq.onrender.com/spotify-user` |
+
+3. Copy your Client ID into `spotifyClientId` in the environment file for each environment:
+   - Dev: [frontend/src/environments/environment.ts](frontend/src/environments/environment.ts)
+   - Prod: [frontend/src/environments/environment.prod.ts](frontend/src/environments/environment.prod.ts)
 
 From the dashboard, connect Spotify, then use **Create Post** to search tracks and build a post.
 
@@ -183,11 +193,16 @@ Both test suites use mocked dependencies — no running servers or database requ
 
 ## Deployment (Render)
 
-**Live URL:** [https://wishare-kqxq.onrender.com](https://wishare-kqxq.onrender.com)
+The app is deployed as a single **Render Web Service** — NestJS serves the Angular SPA and the `/api` routes from one URL.
 
-The production deploy uses **Option A** — one NestJS Web Service serves both the Angular SPA and the API.
+| | |
+|---|---|
+| **Live app** | [https://wishare-kqxq.onrender.com](https://wishare-kqxq.onrender.com) |
+| **Health check** | [https://wishare-kqxq.onrender.com/api/hello](https://wishare-kqxq.onrender.com/api/hello) |
+| **Git branch** | `lifepath` |
+| **Architecture** | Option A — one service (Nest serves `backend/frontend-dist/` + API) |
 
-### Render settings
+### Render dashboard settings
 
 | Field | Value |
 |-------|--------|
@@ -195,35 +210,37 @@ The production deploy uses **Option A** — one NestJS Web Service serves both t
 | **Build Command** | `npm run build` |
 | **Start Command** | `npm run start` |
 
-### Render environment variables
+### Environment variables (Render)
 
 | Variable | Value |
 |----------|--------|
 | `NODE_ENV` | `production` |
 | `HOST` | `0.0.0.0` |
-| `JWT_SECRET` | *(long random secret — required)* |
+| `JWT_SECRET` | Long random secret (required) |
 | `DATABASE_PATH` | `./data/db.sqlite` |
 
 Do **not** set `PORT` — Render injects it automatically.
 
-### Spotify production redirect URI
+### Production frontend config
 
-Add this in your [Spotify Developer Dashboard](https://developer.spotify.com/dashboard):
+Production builds use [frontend/src/environments/environment.prod.ts](frontend/src/environments/environment.prod.ts):
 
-```
-https://wishare-kqxq.onrender.com/spotify-user
-```
+| Field | Production value |
+|-------|------------------|
+| `apiBaseUrl` | `/api` (same origin as the SPA) |
+| `spotifyRedirectUri` | `https://wishare-kqxq.onrender.com/spotify-user` |
 
-Keep the localhost URI for local dev: `http://127.0.0.1:5173/spotify-user`
+After changing prod environment values, push and redeploy so the Angular build picks them up.
 
-### Build from repo root
+### Build and run locally (production mode)
 
 ```bash
-npm run build   # builds frontend, copies to backend/frontend-dist, builds Nest
-npm run start   # runs node dist/main.js in backend
+# From repo root
+npm run build   # frontend build → backend/frontend-dist → nest build
+npm run start   # node backend/dist/main.js
 ```
 
-### SQLite on Render
+### Known limitation: SQLite on Render
 
-The free tier uses an **ephemeral filesystem** — database data may reset on redeploy. Fine for Phase 2; Phase 3 moves to Postgres.
+The free tier uses an **ephemeral filesystem** — database data may reset on redeploy or restart. Acceptable for Phase 2; [Phase 3](resources/lifepath.md) moves to Postgres.
 
