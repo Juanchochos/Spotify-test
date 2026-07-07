@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
 import { SpotifyProfileComponent } from './spotify-profile.component';
 import { SpotifyAuthService } from './spotify-auth.service';
 import { AuthService } from './auth/auth.service';
@@ -23,6 +24,7 @@ describe('SpotifyProfileComponent', () => {
     await TestBed.configureTestingModule({
       imports: [SpotifyProfileComponent],
       providers: [
+        provideRouter([]),
         { provide: SpotifyAuthService, useValue: mockSpotify },
         { provide: AuthService, useValue: mockAuth },
       ],
@@ -41,6 +43,8 @@ describe('SpotifyProfileComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Alice');
+    expect(fixture.nativeElement.textContent).toContain('Go to Dashboard');
+    expect(fixture.nativeElement.textContent).toContain('View My Posts');
     expect(fixture.componentInstance.loading()).toBe(false);
   });
 

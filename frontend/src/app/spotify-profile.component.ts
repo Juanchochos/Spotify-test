@@ -1,11 +1,12 @@
 import { Component, OnInit, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { SpotifyAuthService } from './spotify-auth.service';
 import { AuthService } from './auth/auth.service';
 
 @Component({
   selector: 'spotify-profile',
   standalone: true,
-  imports: [],
+  imports: [RouterLink],
   template: `
     <main style="text-align:center; margin:40px auto; max-width:720px; font-family:sans-serif;">
       <h1>Spotify Profile</h1>
@@ -36,6 +37,23 @@ import { AuthService } from './auth/auth.service';
             <a [href]="profile().href" target="_blank">{{ profile().href }}</a>
           </li>
         </ul>
+      }
+
+      @if (!loading()) {
+        <nav style="margin-top:2rem; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
+          <a
+            routerLink="/dashboard"
+            style="padding:10px 20px; text-decoration:none; border:1px solid #1db954; border-radius:4px; color:#1db954; font-size:15px;"
+          >
+            Go to Dashboard
+          </a>
+          <a
+            routerLink="/profile"
+            style="padding:10px 20px; text-decoration:none; border:1px solid #ccc; border-radius:4px; font-size:15px;"
+          >
+            View My Posts
+          </a>
+        </nav>
       }
     </main>
   `,
