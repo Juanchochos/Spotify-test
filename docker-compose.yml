@@ -1,0 +1,17 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: spotify-test-db
+    restart: unless-stopped
+    ports:
+      - '5432:5432'
+    environment:
+      POSTGRES_USER: spotify
+      POSTGRES_PASSWORD: spotify
+      POSTGRES_DB: spotify_test
+    volumes:
+      - spotify_test_pg:/var/lib/postgresql/data
+
+volumes:
+  spotify_test_pg:
+  

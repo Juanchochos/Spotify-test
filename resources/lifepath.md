@@ -4,7 +4,7 @@ A phased roadmap for evolving this project from a local prototype into something
 
 **Goals:** Learn production patterns (A), ship a portfolio-worthy app (B), deploy for real users (C). Emphasis on learning and deployment while keeping momentum and fun.
 
-**Stack (keep it):** Angular 21 frontend · NestJS 10 backend · SQLite via TypeORM
+**Stack (keep it):** Angular 21 frontend · NestJS 10 backend · Postgres via TypeORM
 
 A full framework rewrite is not the goal. Each phase teaches one real skill and leaves you with a working app.
 
@@ -69,7 +69,7 @@ Do this **after** deploy works. Don't block Phase 2 on database perfection.
 
 ### Tasks
 
-- [ ] Replace SQLite + `synchronize: true` with Postgres and TypeORM migrations
+- [x] Replace SQLite + `synchronize: true` with Postgres and TypeORM migrations
 - [ ] (Optional but valuable) Move Spotify token exchange and search to the Nest backend:
   - Tokens stored server-side, associated with the logged-in user
   - Frontend calls your API instead of Spotify directly

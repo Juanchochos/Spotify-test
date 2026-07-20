@@ -2,7 +2,7 @@
 
 A full-stack web app for creating music posts backed by Spotify track data. Users register, log in, connect Spotify, search for tracks, and publish posts with up to 5 songs each.
 
-**Stack:** Angular 21 frontend (CSR) · NestJS 10 backend · SQLite via TypeORM
+**Stack:** Angular 21 frontend (CSR) · NestJS 10 backend · Postgres via TypeORM
 
 **Live demo:** [https://wishare-kqxq.onrender.com](https://wishare-kqxq.onrender.com)
 
@@ -18,21 +18,33 @@ A full-stack web app for creating music posts backed by Spotify track data. User
 
 ```
 Spotify-test/
-├── frontend/   Angular 21 SPA (standalone components)
-└── backend/    NestJS app with TypeORM + SQLite
+├── frontend/          Angular 21 SPA (standalone components)
+├── backend/           NestJS app with TypeORM + Postgres
+└── docker-compose.yml Local Postgres for development
 ```
 
 ## Prerequisites
 
 - [Node.js](https://nodejs.org/) v18 or higher
 - npm v9 or higher
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/) (recommended for local Postgres) **or** any Postgres 14+ instance
 - A [Spotify Developer](https://developer.spotify.com/dashboard) account and registered app
 
 ---
 
 ## Setup
 
-Install dependencies for both projects:
+### 1. Start local Postgres
+
+From the repo root (with Docker Desktop running):
+
+```bash
+docker compose up -d
+```
+
+This starts Postgres on `127.0.0.1:5432` with database `spotify_test`, user/password `spotify`/`spotify`.
+
+### 2. Install dependencies and configure env
 
 ```bash
 # Backend
@@ -54,7 +66,13 @@ npm install
 | `PORT` | `3000` | API server port |
 | `HOST` | `127.0.0.1` | Bind address |
 | `JWT_SECRET` | (required in prod) | Secret for signing JWTs |
-| `DATABASE_PATH` | `db.sqlite` | SQLite file path |
+| `DATABASE_URL` | (required) | Postgres connection URL |
+
+Example local URL (matches `docker-compose.yml`):
+
+```
+DATABASE_URL=postgresql://spotify:spotify@127.0.0.1:5432/spotify_test
+```
 
 **Frontend** — edit [frontend/src/environments/environment.ts](frontend/src/environments/environment.ts):
 
@@ -66,11 +84,23 @@ npm install
 
 Production builds use [frontend/src/environments/environment.prod.ts](frontend/src/environments/environment.prod.ts) automatically.
 
+### Database migrations
+
+Schema is managed with TypeORM migrations (`synchronize` is off). Pending migrations run automatically when the Nest app starts (`migrationsRun: true`).
+
+You can also run them manually from `backend/`:
+
+```bash
+npm run migration:run    # apply pending migrations
+npm run migration:show   # list migration status
+npm run migration:revert # roll back the last migration
+```
+
 ---
 
 ## Running the Servers
 
-Both servers must run at the same time. Open two terminal windows.
+Both servers must run at the same time. Open two terminal windows. Postgres must be running first.
 
 ### Terminal 1 — Backend (NestJS)
 
@@ -80,8 +110,6 @@ npm run start:dev
 ```
 
 The backend runs at **http://127.0.0.1:3000** (or whatever you set in `.env`).
-
-The SQLite database file is created automatically in the `backend/` folder on first run.
 
 ### Terminal 2 — Frontend (Angular)
 
@@ -217,9 +245,18 @@ The app is deployed as a single **Render Web Service** — NestJS serves the Ang
 | `NODE_ENV` | `production` |
 | `HOST` | `0.0.0.0` |
 | `JWT_SECRET` | Long random secret (required) |
-| `DATABASE_PATH` | `./data/db.sqlite` |
+| `DATABASE_URL` | From your Render Postgres instance (see below) |
 
-Do **not** set `PORT` — Render injects it automatically.
+Do **not** set `PORT` — Render injects it automatically. Remove any old `DATABASE_PATH` variable.
+
+### Postgres on Render
+
+1. In the Render dashboard, create a **PostgreSQL** database (free tier is fine for learning).
+2. Open the database → **Connections** → copy the **Internal Database URL** (preferred when the web service is on Render) or the **External Database URL**.
+3. On your **Web Service** → Environment, set `DATABASE_URL` to that URL (or use Render’s “Link database” so it injects `DATABASE_URL` for you).
+4. Redeploy the web service. On startup, Nest runs pending TypeORM migrations automatically.
+
+Existing SQLite data is **not** migrated automatically — treat this as a fresh production database (re-register users after cutover).
 
 ### Production frontend config
 
@@ -235,12 +272,8 @@ After changing prod environment values, push and redeploy so the Angular build p
 ### Build and run locally (production mode)
 
 ```bash
-# From repo root
+# From repo root (Postgres must be running and DATABASE_URL set in backend/.env)
 npm run build   # frontend build → backend/frontend-dist → nest build
 npm run start   # node backend/dist/main.js
 ```
-
-### Known limitation: SQLite on Render
-
-The free tier uses an **ephemeral filesystem** — database data may reset on redeploy or restart. Acceptable for Phase 2; [Phase 3](resources/lifepath.md) moves to Postgres.
 

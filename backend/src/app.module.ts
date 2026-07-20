@@ -9,18 +9,30 @@ import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { Post } from './posts/post.entity';
 import { SongEntry } from './posts/song-entry.entity';
+import { InitialSchema1752940800000 } from './migrations/1752940800000-InitialSchema';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRootAsync({
       inject: [ConfigService],
-      useFactory: (config: ConfigService) => ({
-        type: 'better-sqlite3',
-        database: config.get<string>('DATABASE_PATH', 'db.sqlite'),
-        entities: [User, Post, SongEntry],
-        synchronize: true,
-      }),
+      useFactory: (config: ConfigService) => {
+        const databaseUrl = config.get<string>('DATABASE_URL');
+        if (!databaseUrl) {
+          throw new Error(
+            'DATABASE_URL is required. Copy backend/.env.example to backend/.env and start Postgres (see README).',
+          );
+        }
+
+        return {
+          type: 'postgres' as const,
+          url: databaseUrl,
+          entities: [User, Post, SongEntry],
+          migrations: [InitialSchema1752940800000],
+          synchronize: false,
+          migrationsRun: true,
+        };
+      },
     }),
     UsersModule,
     AuthModule,

@@ -3,21 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { NestExpressApplication } from '@nestjs/platform-express';
-import { dirname, join } from 'path';
-import { existsSync, mkdirSync } from 'fs';
+import { join } from 'path';
+import { existsSync } from 'fs';
 import { AppModule } from './app.module';
 
-function ensureDatabaseDirectory(dbPath: string): void {
-  const dir = dirname(dbPath);
-  if (dir !== '.' && !existsSync(dir)) {
-    mkdirSync(dir, { recursive: true });
-  }
-}
-
 async function bootstrap() {
-  const dbPath = process.env.DATABASE_PATH ?? 'db.sqlite';
-  ensureDatabaseDirectory(dbPath);
-
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
 
