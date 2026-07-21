@@ -1,4 +1,4 @@
-import { Component, signal } from '@angular/core';
+import { Component, OnInit, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SpotifyAuthService, SpotifyTrack } from '../spotify-auth.service';
@@ -18,7 +18,9 @@ interface SelectedSong extends SongEntryPayload {
       <h1>Create Post</h1>
       <a routerLink="/dashboard" style="font-size:0.9rem;">&larr; Back to Dashboard</a>
 
-      @if (!spotifyAuth.isConnected()) {
+      @if (checkingSpotify()) {
+        <p style="margin-top:24px;">Checking Spotify connection...</p>
+      } @else if (!spotifyConnected()) {
         <div style="margin-top:24px; padding:16px; border:1px solid #f0a; border-radius:6px;">
           <p>You need to connect Spotify to search for songs.</p>
           <button (click)="connectSpotify()" style="padding:8px 16px;">Connect Spotify</button>
@@ -134,7 +136,7 @@ interface SelectedSong extends SongEntryPayload {
     </main>
   `,
 })
-export class CreatePostComponent {
+export class CreatePostComponent implements OnInit {
   searchQuery = '';
   postDescription = '';
 
@@ -144,6 +146,8 @@ export class CreatePostComponent {
   searchError = signal<string | null>(null);
   submitting = signal(false);
   submitError = signal<string | null>(null);
+  spotifyConnected = signal(false);
+  checkingSpotify = signal(true);
 
   constructor(
     public spotifyAuth: SpotifyAuthService,
@@ -151,6 +155,16 @@ export class CreatePostComponent {
     private auth: AuthService,
     private router: Router,
   ) {}
+
+  async ngOnInit() {
+    try {
+      this.spotifyConnected.set(await this.spotifyAuth.isConnected());
+    } catch {
+      this.spotifyConnected.set(false);
+    } finally {
+      this.checkingSpotify.set(false);
+    }
+  }
 
   connectSpotify() {
     this.spotifyAuth.redirectToAuthCodeFlow();

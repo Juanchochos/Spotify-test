@@ -1,7 +1,6 @@
-import { Injectable } from '@angular/core';
+import { Inject, Injectable } from '@angular/core';
 import { AuthService } from '../auth/auth.service';
-
-const API = 'http://127.0.0.1:3000/api/posts';
+import { APP_CONFIG, AppConfig } from '../core/app-config';
 
 export interface SongEntryPayload {
   spotifyTrackId: string;
@@ -40,10 +39,17 @@ export interface PostResponse {
 
 @Injectable({ providedIn: 'root' })
 export class PostsService {
-  constructor(private auth: AuthService) {}
+  constructor(
+    private auth: AuthService,
+    @Inject(APP_CONFIG) private config: AppConfig,
+  ) {}
+
+  private get apiUrl(): string {
+    return `${this.config.apiBaseUrl}/posts`;
+  }
 
   async createPost(payload: CreatePostPayload): Promise<PostResponse> {
-    const res = await fetch(API, {
+    const res = await fetch(this.apiUrl, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -57,7 +63,7 @@ export class PostsService {
   }
 
   async getMyPosts(): Promise<PostResponse[]> {
-    const res = await fetch(`${API}/mine`, {
+    const res = await fetch(`${this.apiUrl}/mine`, {
       headers: { Authorization: `Bearer ${this.auth.getToken()}` },
     });
     const data = await res.json();
@@ -66,7 +72,7 @@ export class PostsService {
   }
 
   async deletePost(id: number): Promise<void> {
-    const res = await fetch(`${API}/${id}`, {
+    const res = await fetch(`${this.apiUrl}/${id}`, {
       method: 'DELETE',
       headers: { Authorization: `Bearer ${this.auth.getToken()}` },
     });

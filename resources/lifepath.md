@@ -4,7 +4,7 @@ A phased roadmap for evolving this project from a local prototype into something
 
 **Goals:** Learn production patterns (A), ship a portfolio-worthy app (B), deploy for real users (C). Emphasis on learning and deployment while keeping momentum and fun.
 
-**Stack (keep it):** Angular 21 frontend · NestJS 10 backend · SQLite via TypeORM
+**Stack (keep it):** Angular 21 frontend · NestJS 10 backend · Postgres via TypeORM
 
 A full framework rewrite is not the goal. Each phase teaches one real skill and leaves you with a working app.
 
@@ -18,11 +18,11 @@ A full framework rewrite is not the goal. Each phase teaches one real skill and 
 
 ### Tasks
 
-- [ ] Move API URL, Spotify client ID, and redirect URI to environment config (no hardcoded `127.0.0.1` in services)
-- [ ] Drop SSR (or ignore it and build CSR-only) — this app is a logged-in SPA; SSR adds complexity without SEO benefit
-- [ ] Remove the unused `items` scaffold from backend and README
-- [ ] Add a `.env.example` documenting required variables
-- [ ] Update README setup instructions to match the new config flow
+- [x] Move API URL, Spotify client ID, and redirect URI to environment config (no hardcoded `127.0.0.1` in services)
+- [x] Drop SSR (or ignore it and build CSR-only) — this app is a logged-in SPA; SSR adds complexity without SEO benefit
+- [x] Remove the unused `items` scaffold from backend and README
+- [x] Add a `.env.example` documenting required variables
+- [x] Update README setup instructions to match the new config flow
 
 ### Done when
 
@@ -42,14 +42,14 @@ This is the **C milestone** — a public URL you can share.
 
 ### Tasks
 
-- [ ] Choose a host with a free tier (Railway, Render, Fly.io, etc.)
-- [ ] Decide deploy shape:
+- [x] Choose a host with a free tier (Railway, Render, Fly.io, etc.)
+- [x] Decide deploy shape:
   - **Option A:** Nest serves the built Angular static files (single service, simpler ops)
   - **Option B:** Two services — static frontend + API (closer to how larger apps split)
-- [ ] Configure production environment variables on the host
-- [ ] Fix CORS on the backend for the production frontend origin
-- [ ] Register production redirect URI in Spotify Developer Dashboard
-- [ ] Verify end-to-end: register → login → Spotify connect → create post → view profile
+- [x] Configure production environment variables on the host
+- [x] Fix CORS on the backend for the production frontend origin
+- [x] Register production redirect URI in Spotify Developer Dashboard
+- [x] Verify end-to-end: register → login → Spotify connect → create post → view profile
 
 ### Done when
 
@@ -69,12 +69,12 @@ Do this **after** deploy works. Don't block Phase 2 on database perfection.
 
 ### Tasks
 
-- [ ] Replace SQLite + `synchronize: true` with Postgres and TypeORM migrations
-- [ ] (Optional but valuable) Move Spotify token exchange and search to the Nest backend:
+- [x] Replace SQLite + `synchronize: true` with Postgres and TypeORM migrations
+- [x] (Optional but valuable) Move Spotify token exchange and search to the Nest backend:
   - Tokens stored server-side, associated with the logged-in user
   - Frontend calls your API instead of Spotify directly
   - Add refresh token handling so users don't reconnect constantly
-- [ ] Add basic error handling and logging on critical paths (auth, posts, Spotify)
+- [x] Add basic error handling and logging on critical paths (auth, posts, Spotify)
 
 ### Done when
 

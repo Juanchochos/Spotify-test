@@ -4,6 +4,14 @@ import { Repository } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from './user.entity';
 
+export interface SpotifyTokenUpdate {
+  spotifyAccessToken: string;
+  spotifyRefreshToken: string | null;
+  spotifyTokenExpiresAt: Date;
+  spotifyId: string;
+  spotifyProfile: any;
+}
+
 @Injectable()
 export class UsersService {
   constructor(
@@ -38,10 +46,39 @@ export class UsersService {
     });
   }
 
+  async saveSpotifyTokens(userId: number, data: SpotifyTokenUpdate): Promise<void> {
+    await this.usersRepository.update(userId, {
+      spotifyAccessToken: data.spotifyAccessToken,
+      spotifyRefreshToken: data.spotifyRefreshToken,
+      spotifyTokenExpiresAt: data.spotifyTokenExpiresAt,
+      spotifyId: data.spotifyId,
+      spotifyProfile: data.spotifyProfile,
+    });
+  }
+
+  async updateSpotifyAccessToken(
+    userId: number,
+    accessToken: string,
+    expiresAt: Date,
+    refreshToken?: string | null,
+  ): Promise<void> {
+    const patch: Partial<User> = {
+      spotifyAccessToken: accessToken,
+      spotifyTokenExpiresAt: expiresAt,
+    };
+    if (refreshToken !== undefined && refreshToken !== null) {
+      patch.spotifyRefreshToken = refreshToken;
+    }
+    await this.usersRepository.update(userId, patch);
+  }
+
   async clearSpotifyProfile(userId: number): Promise<void> {
     await this.usersRepository.update(userId, {
       spotifyId: null,
       spotifyProfile: null,
+      spotifyAccessToken: null,
+      spotifyRefreshToken: null,
+      spotifyTokenExpiresAt: null,
     });
   }
 }

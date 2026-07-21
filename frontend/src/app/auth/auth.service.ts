@@ -1,5 +1,6 @@
-import { Injectable, signal } from '@angular/core';
+import { Inject, Injectable, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { APP_CONFIG, AppConfig } from '../core/app-config';
 
 export interface AuthUser {
   id: number;
@@ -7,7 +8,6 @@ export interface AuthUser {
   username: string;
 }
 
-const API = 'http://127.0.0.1:3000/api/auth';
 const TOKEN_KEY = 'auth_token';
 const USER_KEY = 'auth_user';
 
@@ -15,10 +15,17 @@ const USER_KEY = 'auth_user';
 export class AuthService {
   currentUser = signal<AuthUser | null>(this.loadUser());
 
-  constructor(private router: Router) {}
+  constructor(
+    private router: Router,
+    @Inject(APP_CONFIG) private config: AppConfig,
+  ) {}
+
+  private get apiUrl(): string {
+    return `${this.config.apiBaseUrl}/auth`;
+  }
 
   async register(email: string, username: string, password: string): Promise<void> {
-    const res = await fetch(`${API}/register`, {
+    const res = await fetch(`${this.apiUrl}/register`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, username, password }),
@@ -30,7 +37,7 @@ export class AuthService {
   }
 
   async login(email: string, password: string): Promise<void> {
-    const res = await fetch(`${API}/login`, {
+    const res = await fetch(`${this.apiUrl}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),

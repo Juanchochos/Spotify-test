@@ -20,6 +20,15 @@ export class User {
   @Column({ nullable: true })
   spotifyId: string | null;
 
+  @Column({ nullable: true, type: 'text' })
+  spotifyAccessToken: string | null;
+
+  @Column({ nullable: true, type: 'text' })
+  spotifyRefreshToken: string | null;
+
+  @Column({ nullable: true, type: 'timestamptz' })
+  spotifyTokenExpiresAt: Date | null;
+
   @CreateDateColumn()
   createdAt: Date;
 }
