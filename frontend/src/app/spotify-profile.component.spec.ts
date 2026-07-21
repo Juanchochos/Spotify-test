@@ -11,14 +11,11 @@ describe('SpotifyProfileComponent', () => {
 
   beforeEach(async () => {
     mockAuth = createMockAuthService();
+    mockAuth.getToken = () => 'jwt-token';
     mockSpotify = {
-      isConnected: vi.fn().mockReturnValue(false),
-      getStoredProfile: vi.fn().mockReturnValue(null),
-      loadProfileFromBackend: vi.fn().mockResolvedValue(null),
+      getStatus: vi.fn().mockResolvedValue({ connected: false, profile: null }),
       redirectToAuthCodeFlow: vi.fn(),
-      getAccessToken: vi.fn(),
-      fetchProfile: vi.fn(),
-      saveProfileToBackend: vi.fn().mockResolvedValue(undefined),
+      completeLogin: vi.fn(),
     };
 
     await TestBed.configureTestingModule({
@@ -31,11 +28,10 @@ describe('SpotifyProfileComponent', () => {
     }).compileComponents();
   });
 
-  it('shows cached profile when spotify is connected locally', async () => {
-    (mockSpotify.isConnected as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    (mockSpotify.getStoredProfile as ReturnType<typeof vi.fn>).mockReturnValue({
-      display_name: 'Alice',
-      id: 'sp1',
+  it('shows profile from Nest status when connected', async () => {
+    (mockSpotify.getStatus as ReturnType<typeof vi.fn>).mockResolvedValue({
+      connected: true,
+      profile: { display_name: 'Alice', id: 'sp1' },
     });
 
     const fixture = TestBed.createComponent(SpotifyProfileComponent);
@@ -44,39 +40,31 @@ describe('SpotifyProfileComponent', () => {
 
     expect(fixture.nativeElement.textContent).toContain('Alice');
     expect(fixture.nativeElement.textContent).toContain('Go to Dashboard');
-    expect(fixture.nativeElement.textContent).toContain('View My Posts');
     expect(fixture.componentInstance.loading()).toBe(false);
   });
 
-  it('loads profile from backend when no local cache', async () => {
-    mockAuth.getToken = () => 'jwt-token';
-    (mockSpotify.loadProfileFromBackend as ReturnType<typeof vi.fn>).mockResolvedValue({
-      display_name: 'Bob',
-      id: 'sp2',
-    });
+  it('starts oauth when not connected and no code', async () => {
+    vi.stubGlobal('location', { search: '' });
 
     const fixture = TestBed.createComponent(SpotifyProfileComponent);
     await fixture.componentInstance.ngOnInit();
-    fixture.detectChanges();
 
-    expect(mockSpotify.loadProfileFromBackend).toHaveBeenCalledWith('jwt-token');
-    expect(fixture.nativeElement.textContent).toContain('Bob');
+    expect(mockSpotify.redirectToAuthCodeFlow).toHaveBeenCalled();
+
+    vi.unstubAllGlobals();
   });
 
-  it('exchanges oauth code and saves profile', async () => {
-    mockAuth.getToken = () => 'jwt-token';
+  it('exchanges oauth code via Nest callback', async () => {
     const profile = { display_name: 'Carol', id: 'sp3' };
-
     vi.stubGlobal('location', { search: '?code=auth-code' });
-    (mockSpotify.getAccessToken as ReturnType<typeof vi.fn>).mockResolvedValue('spotify-token');
-    (mockSpotify.fetchProfile as ReturnType<typeof vi.fn>).mockResolvedValue(profile);
+    vi.stubGlobal('history', { replaceState: vi.fn() });
+    (mockSpotify.completeLogin as ReturnType<typeof vi.fn>).mockResolvedValue(profile);
 
     const fixture = TestBed.createComponent(SpotifyProfileComponent);
     await fixture.componentInstance.ngOnInit();
     fixture.detectChanges();
 
-    expect(mockSpotify.getAccessToken).toHaveBeenCalledWith('auth-code');
-    expect(mockSpotify.saveProfileToBackend).toHaveBeenCalledWith('jwt-token', profile);
+    expect(mockSpotify.completeLogin).toHaveBeenCalledWith('auth-code');
     expect(fixture.nativeElement.textContent).toContain('Carol');
 
     vi.unstubAllGlobals();
@@ -84,7 +72,7 @@ describe('SpotifyProfileComponent', () => {
 
   it('shows error when oauth exchange fails', async () => {
     vi.stubGlobal('location', { search: '?code=bad-code' });
-    (mockSpotify.getAccessToken as ReturnType<typeof vi.fn>).mockRejectedValue(
+    (mockSpotify.completeLogin as ReturnType<typeof vi.fn>).mockRejectedValue(
       new Error('token failed'),
     );
 
@@ -92,7 +80,7 @@ describe('SpotifyProfileComponent', () => {
     await fixture.componentInstance.ngOnInit();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Unable to load Spotify profile');
+    expect(fixture.nativeElement.textContent).toContain('Unable to complete Spotify login');
 
     vi.unstubAllGlobals();
   });

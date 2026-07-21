@@ -6,10 +6,12 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
 import { existsSync } from 'fs';
 import { AppModule } from './app.module';
+import { AllExceptionsFilter } from './common/all-exceptions.filter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
   const config = app.get(ConfigService);
+  app.useGlobalFilters(new AllExceptionsFilter());
 
   const isProd = config.get<string>('NODE_ENV') === 'production';
   const jwtSecret = config.get<string>('JWT_SECRET')?.trim();

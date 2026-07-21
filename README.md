@@ -10,7 +10,7 @@ A full-stack web app for creating music posts backed by Spotify track data. User
 
 - User registration and login (JWT)
 - Spotify OAuth via [Authorization Code with PKCE](https://developer.spotify.com/documentation/web-api/tutorials/code-pkce-flow)
-- Spotify track search from the browser
+- Spotify track search via the Nest API (tokens stored server-side)
 - Create posts with an optional description and up to 5 songs
 - View and delete your own posts on a profile page
 
@@ -67,6 +67,8 @@ npm install
 | `HOST` | `127.0.0.1` | Bind address |
 | `JWT_SECRET` | (required in prod) | Secret for signing JWTs |
 | `DATABASE_URL` | (required) | Postgres connection URL |
+| `SPOTIFY_CLIENT_ID` | (required) | Same Client ID as the frontend Spotify app |
+| `SPOTIFY_REDIRECT_URI` | (required) | Must match frontend redirect (dev: `http://127.0.0.1:5173/spotify-user`) |
 
 Example local URL (matches `docker-compose.yml`):
 
@@ -187,6 +189,17 @@ All backend routes are prefixed with `/api`.
 | GET | `/api/posts/mine` | JWT | List your posts |
 | DELETE | `/api/posts/:id` | JWT | Delete one of your posts |
 
+### Spotify (JWT required)
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| POST | `/api/spotify/callback` | Exchange OAuth code + PKCE verifier; store tokens and profile |
+| GET | `/api/spotify/status` | `{ connected, profile }` |
+| GET | `/api/spotify/search?q=` | Search tracks (Nest refreshes tokens when needed) |
+| DELETE | `/api/spotify/disconnect` | Clear Spotify tokens and profile |
+
+Legacy `/api/auth/spotify-profile` routes remain for backward compatibility but the UI uses `/api/spotify/*`.
+
 ---
 
 ## Building for Production
@@ -246,6 +259,8 @@ The app is deployed as a single **Render Web Service** — NestJS serves the Ang
 | `HOST` | `0.0.0.0` |
 | `JWT_SECRET` | Long random secret (required) |
 | `DATABASE_URL` | From your Render Postgres instance (see below) |
+| `SPOTIFY_CLIENT_ID` | Same Client ID as frontend |
+| `SPOTIFY_REDIRECT_URI` | `https://wishare-kqxq.onrender.com/spotify-user` |
 
 Do **not** set `PORT` — Render injects it automatically. Remove any old `DATABASE_PATH` variable.
 
@@ -257,6 +272,8 @@ Do **not** set `PORT` — Render injects it automatically. Remove any old `DATAB
 4. Redeploy the web service. On startup, Nest runs pending TypeORM migrations automatically.
 
 Existing SQLite data is **not** migrated automatically — treat this as a fresh production database (re-register users after cutover).
+
+After deploying the Spotify-on-Nest update, users must **reconnect Spotify** once (old browser-stored tokens are no longer used).
 
 ### Production frontend config
 

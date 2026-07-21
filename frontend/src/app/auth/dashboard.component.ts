@@ -42,15 +42,12 @@ export class DashboardComponent implements OnInit {
   constructor(public auth: AuthService, public spotifyAuth: SpotifyAuthService) {}
 
   async ngOnInit() {
-    // Check local cache first, then fall back to backend
-    if (this.spotifyAuth.isConnected() && this.spotifyAuth.getStoredProfile()) {
-      this.spotifyLinked.set(true);
-      return;
-    }
-    const token = this.auth.getToken();
-    if (token) {
-      const profile = await this.spotifyAuth.loadProfileFromBackend(token);
-      this.spotifyLinked.set(!!profile);
+    if (!this.auth.getToken()) return;
+    try {
+      const status = await this.spotifyAuth.getStatus();
+      this.spotifyLinked.set(status.connected);
+    } catch {
+      this.spotifyLinked.set(false);
     }
   }
 
@@ -59,9 +56,7 @@ export class DashboardComponent implements OnInit {
   }
 
   async disconnectSpotify() {
-    const token = this.auth.getToken();
-    if (token) await this.spotifyAuth.disconnectFromBackend(token);
-    this.spotifyAuth.disconnect();
+    await this.spotifyAuth.disconnect();
     this.spotifyLinked.set(false);
   }
 }

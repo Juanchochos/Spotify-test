@@ -70,11 +70,11 @@ Do this **after** deploy works. Don't block Phase 2 on database perfection.
 ### Tasks
 
 - [x] Replace SQLite + `synchronize: true` with Postgres and TypeORM migrations
-- [ ] (Optional but valuable) Move Spotify token exchange and search to the Nest backend:
+- [x] (Optional but valuable) Move Spotify token exchange and search to the Nest backend:
   - Tokens stored server-side, associated with the logged-in user
   - Frontend calls your API instead of Spotify directly
   - Add refresh token handling so users don't reconnect constantly
-- [ ] Add basic error handling and logging on critical paths (auth, posts, Spotify)
+- [x] Add basic error handling and logging on critical paths (auth, posts, Spotify)
 
 ### Done when
 

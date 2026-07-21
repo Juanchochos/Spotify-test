@@ -22,7 +22,7 @@ describe('CreatePostComponent', () => {
 
   beforeEach(async () => {
     mockSpotify = {
-      isConnected: vi.fn().mockReturnValue(true),
+      isConnected: vi.fn().mockResolvedValue(true),
       searchTracks: vi.fn().mockResolvedValue([sampleTrack]),
       redirectToAuthCodeFlow: vi.fn(),
     };
@@ -44,10 +44,11 @@ describe('CreatePostComponent', () => {
     vi.spyOn(router, 'navigate').mockResolvedValue(true);
   });
 
-  it('shows connect spotify prompt when not connected', () => {
-    (mockSpotify.isConnected as ReturnType<typeof vi.fn>).mockReturnValue(false);
+  it('shows connect spotify prompt when not connected', async () => {
+    (mockSpotify.isConnected as ReturnType<typeof vi.fn>).mockResolvedValue(false);
 
     const fixture = TestBed.createComponent(CreatePostComponent);
+    await fixture.componentInstance.ngOnInit();
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('connect Spotify');
@@ -55,6 +56,7 @@ describe('CreatePostComponent', () => {
 
   it('search populates results', async () => {
     const fixture = TestBed.createComponent(CreatePostComponent);
+    await fixture.componentInstance.ngOnInit();
     fixture.componentInstance.searchQuery = 'test';
     await fixture.componentInstance.search();
     fixture.detectChanges();

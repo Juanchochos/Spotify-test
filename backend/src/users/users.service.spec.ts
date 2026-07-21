@@ -69,10 +69,12 @@ describe('UsersService', () => {
 
   it('clearSpotifyProfile nulls spotify fields', async () => {
     await service.clearSpotifyProfile(1);
-
     expect(repo.update).toHaveBeenCalledWith(1, {
       spotifyId: null,
       spotifyProfile: null,
+      spotifyAccessToken: null,
+      spotifyRefreshToken: null,
+      spotifyTokenExpiresAt: null,
     });
   });
 });

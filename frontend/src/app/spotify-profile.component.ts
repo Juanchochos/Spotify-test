@@ -66,49 +66,40 @@ export class SpotifyProfileComponent implements OnInit {
   constructor(private spotifyAuth: SpotifyAuthService, private auth: AuthService) {}
 
   async ngOnInit() {
-    const authToken = this.auth.getToken();
-
-    // 1. Local cache with valid token — show immediately
-    if (this.spotifyAuth.isConnected()) {
-      const cached = this.spotifyAuth.getStoredProfile();
-      if (cached) {
-        this.profile.set(cached);
-        this.loading.set(false);
-        return;
-      }
+    if (!this.auth.getToken()) {
+      this.error.set('Please log in before connecting Spotify.');
+      this.loading.set(false);
+      return;
     }
 
-    // 2. No local cache — try the backend (covers new device logins)
-    if (authToken) {
-      const backendProfile = await this.spotifyAuth.loadProfileFromBackend(authToken);
-      if (backendProfile) {
-        this.profile.set(backendProfile);
-        this.loading.set(false);
-        return;
-      }
-    }
-
-    // 3. Nothing stored — start OAuth flow
     const params = new URLSearchParams(window.location.search);
     const code = params.get('code');
 
-    if (!code) {
-      await this.spotifyAuth.redirectToAuthCodeFlow();
+    if (code) {
+      try {
+        const profile = await this.spotifyAuth.completeLogin(code);
+        this.profile.set(profile);
+        window.history.replaceState({}, '', '/spotify-user');
+      } catch (err) {
+        console.error(err);
+        this.error.set('Unable to complete Spotify login. Please try again.');
+      } finally {
+        this.loading.set(false);
+      }
       return;
     }
 
     try {
-      const token = await this.spotifyAuth.getAccessToken(code);
-      const profile = await this.spotifyAuth.fetchProfile(token);
-      this.profile.set(profile);
-      // Persist to backend so other devices can load it
-      if (authToken) {
-        await this.spotifyAuth.saveProfileToBackend(authToken, profile);
+      const status = await this.spotifyAuth.getStatus();
+      if (status.connected && status.profile) {
+        this.profile.set(status.profile);
+        this.loading.set(false);
+        return;
       }
+      await this.spotifyAuth.redirectToAuthCodeFlow();
     } catch (err) {
       console.error(err);
       this.error.set('Unable to load Spotify profile. Please try again.');
-    } finally {
       this.loading.set(false);
     }
   }

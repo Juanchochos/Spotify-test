@@ -9,7 +9,9 @@ import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { Post } from './posts/post.entity';
 import { SongEntry } from './posts/song-entry.entity';
+import { SpotifyModule } from './spotify/spotify.module';
 import { InitialSchema1752940800000 } from './migrations/1752940800000-InitialSchema';
+import { AddSpotifyTokens1752942000000 } from './migrations/1752942000000-AddSpotifyTokens';
 
 @Module({
   imports: [
@@ -28,7 +30,7 @@ import { InitialSchema1752940800000 } from './migrations/1752940800000-InitialSc
           type: 'postgres' as const,
           url: databaseUrl,
           entities: [User, Post, SongEntry],
-          migrations: [InitialSchema1752940800000],
+          migrations: [InitialSchema1752940800000, AddSpotifyTokens1752942000000],
           synchronize: false,
           migrationsRun: true,
         };
@@ -37,6 +39,7 @@ import { InitialSchema1752940800000 } from './migrations/1752940800000-InitialSc
     UsersModule,
     AuthModule,
     PostsModule,
+    SpotifyModule,
   ],
   controllers: [AppController],
   providers: [AppService],

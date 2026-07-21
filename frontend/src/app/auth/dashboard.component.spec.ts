@@ -15,12 +15,9 @@ describe('DashboardComponent', () => {
     mockAuth.getToken = () => 'jwt-token';
 
     mockSpotify = {
-      isConnected: vi.fn().mockReturnValue(false),
-      getStoredProfile: vi.fn().mockReturnValue(null),
-      loadProfileFromBackend: vi.fn().mockResolvedValue(null),
+      getStatus: vi.fn().mockResolvedValue({ connected: false, profile: null }),
       redirectToAuthCodeFlow: vi.fn(),
-      disconnect: vi.fn(),
-      disconnectFromBackend: vi.fn().mockResolvedValue(undefined),
+      disconnect: vi.fn().mockResolvedValue(undefined),
     };
 
     await TestBed.configureTestingModule({
@@ -43,9 +40,11 @@ describe('DashboardComponent', () => {
     expect(fixture.nativeElement.textContent).toContain('My Profile');
   });
 
-  it('shows disconnect when spotify is linked locally', async () => {
-    (mockSpotify.isConnected as ReturnType<typeof vi.fn>).mockReturnValue(true);
-    (mockSpotify.getStoredProfile as ReturnType<typeof vi.fn>).mockReturnValue({ id: 'sp1' });
+  it('shows disconnect when spotify is linked', async () => {
+    (mockSpotify.getStatus as ReturnType<typeof vi.fn>).mockResolvedValue({
+      connected: true,
+      profile: { id: 'sp1' },
+    });
 
     const fixture = TestBed.createComponent(DashboardComponent);
     await fixture.componentInstance.ngOnInit();
@@ -66,7 +65,6 @@ describe('DashboardComponent', () => {
 
     await fixture.componentInstance.disconnectSpotify();
 
-    expect(mockSpotify.disconnectFromBackend).toHaveBeenCalledWith('jwt-token');
     expect(mockSpotify.disconnect).toHaveBeenCalled();
     expect(fixture.componentInstance.spotifyLinked()).toBe(false);
   });
