@@ -36,8 +36,10 @@ describe('DashboardComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Connect Spotify');
-    expect(fixture.nativeElement.textContent).toContain('Create Post');
-    expect(fixture.nativeElement.textContent).toContain('My Profile');
+    expect(fixture.nativeElement.textContent).toContain('Create post');
+    expect(fixture.nativeElement.textContent).toContain('My profile');
+    expect(fixture.nativeElement.textContent).toContain('Find people');
+    expect(fixture.nativeElement.textContent).toContain('Friends');
   });
 
   it('shows disconnect when spotify is linked', async () => {
@@ -50,7 +52,7 @@ describe('DashboardComponent', () => {
     await fixture.componentInstance.ngOnInit();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('Disconnect Spotify');
+    expect(fixture.nativeElement.textContent).toContain('Disconnect');
   });
 
   it('connectSpotify starts oauth flow', () => {

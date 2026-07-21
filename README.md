@@ -157,6 +157,9 @@ From the dashboard, connect Spotify, then use **Create Post** to search tracks a
 | `/spotify-user` | Spotify OAuth callback and profile | No |
 | `/create-post` | Search Spotify and create a post | Yes |
 | `/profile` | View and delete your posts | Yes |
+| `/search` | Find people by username | Yes |
+| `/friends` | Friends / following / followers lists | Yes |
+| `/users/:id` | Another user’s profile and posts | Yes |
 
 ---
 
@@ -188,6 +191,19 @@ All backend routes are prefixed with `/api`.
 | POST | `/api/posts` | JWT | Create a post (up to 5 songs) |
 | GET | `/api/posts/mine` | JWT | List your posts |
 | DELETE | `/api/posts/:id` | JWT | Delete one of your posts |
+
+### Users / social (JWT required)
+
+| Method | URL | Description |
+|--------|-----|-------------|
+| GET | `/api/users/search?q=` | Search usernames; includes follow/friend status |
+| GET | `/api/users/me/following` | People you follow |
+| GET | `/api/users/me/followers` | People who follow you |
+| GET | `/api/users/me/friends` | Mutual follows only |
+| GET | `/api/users/:id` | Public profile card + follower counts |
+| GET | `/api/users/:id/posts` | That user’s posts (no friendship required) |
+| POST | `/api/users/:id/follow` | Follow (idempotent) |
+| DELETE | `/api/users/:id/follow` | Unfollow |
 
 ### Spotify (JWT required)
 

@@ -92,13 +92,16 @@ Do this **after** deploy works. Don't block Phase 2 on database perfection.
 
 Infrastructure is in place. Build something that makes *you* want to open the app.
 
-### Ideas (pick what excites you)
+**Active cycle:** See [phase4-friends-and-redesign.md](phase4-friends-and-redesign.md) for the locked product rules, follow/friends API, and strong UI redesign plan.
 
-- [ ] Public feed — browse other users' music posts
+### Ideas (this cycle + later)
+
+- [x] Friend search + follow (mutual = friends; posts not gated on friendship) — see Phase 4 file
+- [x] Strong UI redesign — see Phase 4 file
+- [ ] Public / discovery feed of posts
 - [ ] Likes or reactions on posts
 - [ ] Richer profile page (avatar, bio, post history)
 - [ ] Playlist-style posts or themed collections
-- [ ] UI polish — typography, layout, motion (use the frontend-design skill)
 
 ### Done when
 
@@ -138,7 +141,7 @@ Revisit any of these only if a concrete problem forces it — not preemptively.
 Phase 1  →  Env config, drop SSR noise, clean scaffold
 Phase 2  →  Deploy v1 with a public URL
 Phase 3  →  Postgres + migrations, optional Spotify backend proxy
-Phase 4  →  Fun features + UI polish
+Phase 4  →  Friends/follow + strong UI redesign (see phase4-friends-and-redesign.md)
 ```
 
 Each phase is independently valuable. If motivation dips, it's okay to spend extra time in Phase 4 — the earlier phases aren't wasted, they're the foundation.

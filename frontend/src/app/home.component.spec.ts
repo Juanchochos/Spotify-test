@@ -1,5 +1,4 @@
 import { TestBed } from '@angular/core/testing';
-import { signal } from '@angular/core';
 import { provideRouter } from '@angular/router';
 import { HomeComponent } from './home.component';
 import { AuthService } from './auth/auth.service';
@@ -17,27 +16,26 @@ describe('HomeComponent', () => {
     }).compileComponents();
   });
 
-  it('shows login and register links when logged out', () => {
+  it('shows login and register when logged out', () => {
     mockAuth.isLoggedIn = () => false;
 
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent;
 
-    expect(text).toContain('Welcome to the App');
+    expect(text).toContain('Wishare');
     expect(text).toContain('Log in');
-    expect(text).toContain('Register');
+    expect(text).toContain('Get started');
   });
 
-  it('shows username and dashboard link when logged in', () => {
+  it('shows open night CTA when logged in', () => {
     mockAuth.isLoggedIn = () => true;
-    mockAuth.currentUser = signal({ id: 1, email: 'a@b.com', username: 'alice' });
 
     const fixture = TestBed.createComponent(HomeComponent);
     fixture.detectChanges();
     const text = fixture.nativeElement.textContent;
 
-    expect(text).toContain('alice');
-    expect(text).toContain('Go to Dashboard');
+    expect(text).toContain('Open your night');
+    expect(text).toContain('Create a post');
   });
 });

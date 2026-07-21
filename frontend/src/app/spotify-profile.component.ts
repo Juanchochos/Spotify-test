@@ -8,54 +8,40 @@ import { AuthService } from './auth/auth.service';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <main style="text-align:center; margin:40px auto; max-width:720px; font-family:sans-serif;">
-      <h1>Spotify Profile</h1>
+    <h1 class="page-title">Spotify profile</h1>
+    <p class="page-lead">Linked to your Wishare account.</p>
 
-      @if (loading()) {
-        <p>Loading Spotify profile...</p>
-      } @else if (error()) {
-        <p style="color:crimson">{{ error() }}</p>
-      } @else if (profile()) {
-        <h2>{{ profile().display_name }}</h2>
+    @if (loading()) {
+      <p class="muted">Loading Spotify profile…</p>
+    } @else if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    } @else if (profile()) {
+      <div class="profile-header">
         @if (profile().images?.[0]) {
           <img
+            class="avatar-round"
             [src]="profile().images[0].url"
-            alt="Spotify avatar"
-            width="200"
-            style="border-radius:50%; margin:1rem 0;"
+            alt=""
+            width="96"
+            height="96"
           />
         }
-        <ul style="list-style:none; padding:0; text-align:left; display:inline-block;">
-          <li><strong>User ID:</strong> {{ profile().id }}</li>
-          <li><strong>Email:</strong> {{ profile().email }}</li>
-          <li>
-            <strong>Spotify URI:</strong>
-            <a [href]="profile().external_urls?.spotify" target="_blank">{{ profile().uri }}</a>
-          </li>
-          <li>
-            <strong>Link:</strong>
-            <a [href]="profile().href" target="_blank">{{ profile().href }}</a>
-          </li>
-        </ul>
-      }
+        <div>
+          <h2 style="font-size:1.5rem;">{{ profile().display_name }}</h2>
+          <ul class="muted" style="list-style:none; padding:0; margin:0.75rem 0 0; font-size:0.9rem;">
+            <li><strong style="color:var(--chalk)">ID:</strong> {{ profile().id }}</li>
+            <li><strong style="color:var(--chalk)">Email:</strong> {{ profile().email }}</li>
+          </ul>
+        </div>
+      </div>
+    }
 
-      @if (!loading()) {
-        <nav style="margin-top:2rem; display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
-          <a
-            routerLink="/dashboard"
-            style="padding:10px 20px; text-decoration:none; border:1px solid #1db954; border-radius:4px; color:#1db954; font-size:15px;"
-          >
-            Go to Dashboard
-          </a>
-          <a
-            routerLink="/profile"
-            style="padding:10px 20px; text-decoration:none; border:1px solid #ccc; border-radius:4px; font-size:15px;"
-          >
-            View My Posts
-          </a>
-        </nav>
-      }
-    </main>
+    @if (!loading()) {
+      <div class="btn-row" style="margin-top:2rem;">
+        <a routerLink="/dashboard" class="btn btn-primary">Dashboard</a>
+        <a routerLink="/profile" class="btn btn-ghost">My posts</a>
+      </div>
+    }
   `,
 })
 export class SpotifyProfileComponent implements OnInit {

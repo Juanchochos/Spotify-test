@@ -8,31 +8,31 @@ import { AuthService } from './auth.service';
   standalone: true,
   imports: [FormsModule, RouterLink],
   template: `
-    <main style="max-width:400px; margin:80px auto; font-family:sans-serif; padding:0 16px;">
-      <h1>Log in</h1>
+    <a routerLink="/" class="back-link">← Wishare</a>
+    <h1 class="page-title">Log in</h1>
+    <p class="page-lead">Welcome back. Pick up where you left off.</p>
 
-      @if (error()) {
-        <p style="color:crimson">{{ error() }}</p>
-      }
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
 
-      <form (ngSubmit)="onSubmit()">
-        <div style="margin-bottom:12px;">
-          <label>Email<br />
-            <input type="email" [(ngModel)]="email" name="email" required style="width:100%; padding:8px; box-sizing:border-box;" />
-          </label>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label>Password<br />
-            <input type="password" [(ngModel)]="password" name="password" required style="width:100%; padding:8px; box-sizing:border-box;" />
-          </label>
-        </div>
-        <button type="submit" [disabled]="loading()" style="width:100%; padding:10px; font-size:16px;">
-          {{ loading() ? 'Logging in...' : 'Log in' }}
-        </button>
-      </form>
+    <form class="stack" style="margin-top:1.5rem;" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" [(ngModel)]="email" name="email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" [(ngModel)]="password" name="password" required autocomplete="current-password" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+        {{ loading() ? 'Logging in…' : 'Log in' }}
+      </button>
+    </form>
 
-      <p style="margin-top:16px;">Don't have an account? <a routerLink="/register">Register</a></p>
-    </main>
+    <p class="muted" style="margin-top:1.5rem;">
+      No account? <a routerLink="/register">Register</a>
+    </p>
   `,
 })
 export class LoginComponent {

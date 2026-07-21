@@ -14,126 +14,119 @@ interface SelectedSong extends SongEntryPayload {
   standalone: true,
   imports: [FormsModule, RouterLink],
   template: `
-    <main style="max-width:680px; margin:60px auto; font-family:sans-serif; padding:0 16px;">
-      <h1>Create Post</h1>
-      <a routerLink="/dashboard" style="font-size:0.9rem;">&larr; Back to Dashboard</a>
+    <a routerLink="/dashboard" class="back-link">← Dashboard</a>
+    <h1 class="page-title">Create post</h1>
+    <p class="page-lead">Up to five songs, with optional notes.</p>
 
-      @if (checkingSpotify()) {
-        <p style="margin-top:24px;">Checking Spotify connection...</p>
-      } @else if (!spotifyConnected()) {
-        <div style="margin-top:24px; padding:16px; border:1px solid #f0a; border-radius:6px;">
-          <p>You need to connect Spotify to search for songs.</p>
-          <button (click)="connectSpotify()" style="padding:8px 16px;">Connect Spotify</button>
-        </div>
-      } @else {
+    @if (checkingSpotify()) {
+      <p class="muted">Checking Spotify connection…</p>
+    } @else if (!spotifyConnected()) {
+      <div class="panel">
+        <p style="margin:0 0 1rem;">Connect Spotify to search for songs.</p>
+        <button type="button" class="btn btn-primary" (click)="connectSpotify()">Connect Spotify</button>
+      </div>
+    } @else {
+      <section>
+        <h2 style="font-size:1.15rem; margin-bottom:1rem;">
+          Songs ({{ selectedSongs().length }}/5)
+        </h2>
 
-        <section style="margin-top:24px;">
-          <h2 style="margin-bottom:12px;">Add Songs ({{ selectedSongs().length }}/5)</h2>
+        @if (selectedSongs().length < 5) {
+          <div class="search-bar">
+            <input
+              class="input"
+              type="text"
+              [(ngModel)]="searchQuery"
+              placeholder="Search Spotify…"
+              (keyup.enter)="search()"
+            />
+            <button type="button" class="btn btn-ghost" (click)="search()" [disabled]="searching()">
+              {{ searching() ? 'Searching…' : 'Search' }}
+            </button>
+          </div>
 
-          @if (selectedSongs().length < 5) {
-            <div style="display:flex; gap:8px; margin-bottom:12px;">
-              <input
-                type="text"
-                [(ngModel)]="searchQuery"
-                placeholder="Search Spotify..."
-                style="flex:1; padding:8px; font-size:14px;"
-                (keyup.enter)="search()"
-              />
-              <button (click)="search()" [disabled]="searching()" style="padding:8px 16px;">
-                {{ searching() ? 'Searching...' : 'Search' }}
-              </button>
-            </div>
-
-            @if (searchError()) {
-              <p style="color:crimson;">{{ searchError() }}</p>
-            }
-
-            @if (searchResults().length > 0) {
-              <ul style="list-style:none; padding:0; border:1px solid #ddd; border-radius:6px; max-height:300px; overflow-y:auto; margin-bottom:16px;">
-                @for (track of searchResults(); track track.id) {
-                  <li style="display:flex; align-items:center; gap:12px; padding:8px 12px; border-bottom:1px solid #eee;">
-                    @if (track.album.images[0]) {
-                      <img [src]="track.album.images[0].url" width="48" height="48" style="border-radius:4px; flex-shrink:0;" />
-                    }
-                    <div style="flex:1; min-width:0;">
-                      <strong style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ track.name }}</strong>
-                      <small>{{ track.artists[0]?.name }} &mdash; {{ track.album.name }}</small>
-                    </div>
-                    <button
-                      (click)="addSong(track)"
-                      [disabled]="isAlreadyAdded(track.id)"
-                      style="flex-shrink:0; padding:6px 12px;"
-                    >
-                      {{ isAlreadyAdded(track.id) ? 'Added' : '+ Add' }}
-                    </button>
-                  </li>
-                }
-              </ul>
-            }
+          @if (searchError()) {
+            <p class="form-error">{{ searchError() }}</p>
           }
 
-          @if (selectedSongs().length > 0) {
-            <ul style="list-style:none; padding:0;">
-              @for (song of selectedSongs(); track song.spotifyTrackId; let i = $index) {
-                <li style="padding:12px; margin-bottom:8px; border:1px solid #ccc; border-radius:6px;">
-                  <div style="display:flex; align-items:center; gap:10px;">
-                    @if (song.albumImageUrl) {
-                      <img [src]="song.albumImageUrl" width="48" height="48" style="border-radius:4px; flex-shrink:0;" />
-                    }
-                    <div style="flex:1; min-width:0;">
-                      <strong>{{ song.trackName }}</strong> &mdash; {{ song.artistName }}
-                    </div>
-                    <button (click)="removeSong(i)" style="color:crimson; background:none; border:none; cursor:pointer; flex-shrink:0;">
-                      Remove
-                    </button>
+          @if (searchResults().length > 0) {
+            <ul class="panel" style="list-style:none; margin:0 0 1.5rem; padding:0; max-height:300px; overflow-y:auto;">
+              @for (track of searchResults(); track track.id) {
+                <li class="song-row" style="border-top:none; border-bottom:1px solid var(--line); padding-inline:0.75rem;">
+                  @if (track.album.images[0]) {
+                    <img [src]="track.album.images[0].url" width="48" height="48" alt="" />
+                  }
+                  <div style="flex:1; min-width:0;">
+                    <strong style="display:block; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ track.name }}</strong>
+                    <small class="muted">{{ track.artists[0]?.name }} — {{ track.album.name }}</small>
                   </div>
-                  <div style="margin-top:8px;">
-                    <input
-                      type="text"
-                      [(ngModel)]="song.description"
-                      maxlength="300"
-                      placeholder="Note for this song (optional)"
-                      style="width:100%; padding:6px; box-sizing:border-box; font-size:13px;"
-                    />
-                  </div>
+                  <button
+                    type="button"
+                    class="btn btn-ghost"
+                    style="padding:0.4rem 0.75rem;"
+                    (click)="addSong(track)"
+                    [disabled]="isAlreadyAdded(track.id)"
+                  >
+                    {{ isAlreadyAdded(track.id) ? 'Added' : '+ Add' }}
+                  </button>
                 </li>
               }
             </ul>
           }
-        </section>
-
-        <section style="margin-top:24px;">
-          <label style="display:block;">
-            Post description (optional)
-            <textarea
-              [(ngModel)]="postDescription"
-              maxlength="500"
-              rows="3"
-              placeholder="What's on your mind?"
-              style="width:100%; padding:8px; box-sizing:border-box; margin-top:6px; font-size:14px;"
-            ></textarea>
-          </label>
-        </section>
-
-        @if (submitError()) {
-          <p style="color:crimson; margin-top:12px;">{{ submitError() }}</p>
         }
 
-        <div style="margin-top:20px; display:flex; gap:12px; align-items:center;">
-          <button
-            (click)="submit()"
-            [disabled]="submitting()"
-            style="padding:10px 24px; font-size:15px;"
-          >
-            {{ submitting() ? 'Posting...' : 'Post' }}
-          </button>
-          <a routerLink="/profile" style="padding:10px 16px; text-decoration:none; border:1px solid #ccc; border-radius:4px; font-size:14px;">
-            View Profile
-          </a>
-        </div>
+        @if (selectedSongs().length > 0) {
+          <ul style="list-style:none; padding:0; margin:0 0 1.5rem;">
+            @for (song of selectedSongs(); track song.spotifyTrackId; let i = $index) {
+              <li class="post-card" style="margin-bottom:0.75rem; padding:1rem;">
+                <div class="song-row" style="border:none; padding:0;">
+                  @if (song.albumImageUrl) {
+                    <img [src]="song.albumImageUrl" width="48" height="48" alt="" />
+                  }
+                  <div style="flex:1;">
+                    <strong>{{ song.trackName }}</strong>
+                    <span class="muted"> — {{ song.artistName }}</span>
+                  </div>
+                  <button type="button" class="btn-danger" (click)="removeSong(i)">Remove</button>
+                </div>
+                <div class="field" style="margin-top:0.75rem;">
+                  <input
+                    class="input"
+                    type="text"
+                    [(ngModel)]="song.description"
+                    maxlength="300"
+                    placeholder="Note for this song (optional)"
+                  />
+                </div>
+              </li>
+            }
+          </ul>
+        }
+      </section>
 
+      <div class="field">
+        <label for="desc">Post description (optional)</label>
+        <textarea
+          id="desc"
+          class="input"
+          [(ngModel)]="postDescription"
+          maxlength="500"
+          rows="3"
+          placeholder="What's on your mind?"
+        ></textarea>
+      </div>
+
+      @if (submitError()) {
+        <p class="form-error">{{ submitError() }}</p>
       }
-    </main>
+
+      <div class="btn-row" style="margin-top:1.25rem;">
+        <button type="button" class="btn btn-primary" (click)="submit()" [disabled]="submitting()">
+          {{ submitting() ? 'Posting…' : 'Post' }}
+        </button>
+        <a routerLink="/profile" class="btn btn-ghost">View profile</a>
+      </div>
+    }
   `,
 })
 export class CreatePostComponent implements OnInit {

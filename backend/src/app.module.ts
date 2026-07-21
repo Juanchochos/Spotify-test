@@ -5,6 +5,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
 import { User } from './users/user.entity';
+import { Follow } from './users/follow.entity';
 import { AuthModule } from './auth/auth.module';
 import { PostsModule } from './posts/posts.module';
 import { Post } from './posts/post.entity';
@@ -12,6 +13,7 @@ import { SongEntry } from './posts/song-entry.entity';
 import { SpotifyModule } from './spotify/spotify.module';
 import { InitialSchema1752940800000 } from './migrations/1752940800000-InitialSchema';
 import { AddSpotifyTokens1752942000000 } from './migrations/1752942000000-AddSpotifyTokens';
+import { CreateFollow1753030000000 } from './migrations/1753030000000-CreateFollow';
 
 @Module({
   imports: [
@@ -29,8 +31,12 @@ import { AddSpotifyTokens1752942000000 } from './migrations/1752942000000-AddSpo
         return {
           type: 'postgres' as const,
           url: databaseUrl,
-          entities: [User, Post, SongEntry],
-          migrations: [InitialSchema1752940800000, AddSpotifyTokens1752942000000],
+          entities: [User, Post, SongEntry, Follow],
+          migrations: [
+            InitialSchema1752940800000,
+            AddSpotifyTokens1752942000000,
+            CreateFollow1753030000000,
+          ],
           synchronize: false,
           migrationsRun: true,
         };

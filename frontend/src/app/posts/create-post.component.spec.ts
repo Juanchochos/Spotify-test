@@ -51,7 +51,7 @@ describe('CreatePostComponent', () => {
     await fixture.componentInstance.ngOnInit();
     fixture.detectChanges();
 
-    expect(fixture.nativeElement.textContent).toContain('connect Spotify');
+    expect(fixture.nativeElement.textContent).toContain('Connect Spotify');
   });
 
   it('search populates results', async () => {

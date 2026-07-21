@@ -7,16 +7,23 @@ import { AuthService } from './auth/auth.service';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <main style="text-align:center; margin-top:80px; font-family:sans-serif;">
-      <h1>Welcome to the App</h1>
-
-      @if (auth.isLoggedIn()) {
-        <p>You are logged in as <strong>{{ auth.currentUser()?.username }}</strong>.</p>
-        <a routerLink="/dashboard">Go to Dashboard</a>
-      } @else {
-        <p><a routerLink="/login">Log in</a> &nbsp;|&nbsp; <a routerLink="/register">Register</a></p>
-      }
-    </main>
+    <section class="hero">
+      <p class="eyebrow">Share what you’re playing</p>
+      <h1 class="hero-brand">Wish<span>are</span></h1>
+      <hr class="hero-groove" />
+      <p class="hero-copy">
+        Post the songs on your mind. Find people who listen the way you do.
+      </p>
+      <div class="btn-row">
+        @if (auth.isLoggedIn()) {
+          <a routerLink="/dashboard" class="btn btn-primary">Open your night</a>
+          <a routerLink="/create-post" class="btn btn-ghost">Create a post</a>
+        } @else {
+          <a routerLink="/register" class="btn btn-primary">Get started</a>
+          <a routerLink="/login" class="btn btn-ghost">Log in</a>
+        }
+      </div>
+    </section>
   `,
 })
 export class HomeComponent {

@@ -3,10 +3,12 @@ import { provideRouter } from '@angular/router';
 import { ProfileComponent } from './profile.component';
 import { PostsService, PostResponse } from './posts.service';
 import { AuthService } from '../auth/auth.service';
+import { UsersApiService } from '../users/users-api.service';
 import { createMockAuthService } from '../testing/mock-auth.service';
 
 describe('ProfileComponent', () => {
   let mockPosts: Partial<PostsService>;
+  let mockUsers: Partial<UsersApiService>;
   let mockAuth: ReturnType<typeof createMockAuthService>;
 
   const samplePost: PostResponse = {
@@ -37,12 +39,24 @@ describe('ProfileComponent', () => {
       getMyPosts: vi.fn().mockResolvedValue([samplePost]),
       deletePost: vi.fn().mockResolvedValue(undefined),
     };
+    mockUsers = {
+      getProfile: vi.fn().mockResolvedValue({
+        id: 1,
+        username: 'alice',
+        avatarUrl: null,
+        amIFollowing: false,
+        isFriend: false,
+        followerCount: 2,
+        followingCount: 3,
+      }),
+    };
 
     await TestBed.configureTestingModule({
       imports: [ProfileComponent],
       providers: [
         provideRouter([]),
         { provide: PostsService, useValue: mockPosts },
+        { provide: UsersApiService, useValue: mockUsers },
         { provide: AuthService, useValue: mockAuth },
       ],
     }).compileComponents();
@@ -70,11 +84,9 @@ describe('ProfileComponent', () => {
 
   it('deletePost removes post from list', async () => {
     const fixture = TestBed.createComponent(ProfileComponent);
-    await fixture.componentInstance.ngOnInit();
-    fixture.detectChanges();
+    fixture.componentInstance.posts.set([samplePost]);
 
     await fixture.componentInstance.deletePost(1);
-    fixture.detectChanges();
 
     expect(mockPosts.deletePost).toHaveBeenCalledWith(1);
     expect(fixture.componentInstance.posts().length).toBe(0);

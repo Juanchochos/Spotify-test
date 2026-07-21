@@ -39,7 +39,7 @@ describe('SpotifyProfileComponent', () => {
     fixture.detectChanges();
 
     expect(fixture.nativeElement.textContent).toContain('Alice');
-    expect(fixture.nativeElement.textContent).toContain('Go to Dashboard');
+    expect(fixture.nativeElement.textContent).toContain('Dashboard');
     expect(fixture.componentInstance.loading()).toBe(false);
   });
 

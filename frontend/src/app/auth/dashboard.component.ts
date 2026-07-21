@@ -8,32 +8,32 @@ import { SpotifyAuthService } from '../spotify-auth.service';
   standalone: true,
   imports: [RouterLink],
   template: `
-    <main style="max-width:600px; margin:80px auto; font-family:sans-serif; padding:0 16px;">
-      <h1>Welcome, {{ auth.currentUser()?.username }}!</h1>
-      <p>Email: {{ auth.currentUser()?.email }}</p>
+    <p class="eyebrow">Signed in</p>
+    <h1 class="page-title">Hey, {{ auth.currentUser()?.username }}</h1>
+    <p class="page-lead">{{ auth.currentUser()?.email }}</p>
 
-      <hr style="margin:24px 0;" />
-
+    <div class="panel">
+      <h2 style="font-size:1.1rem; margin-bottom:0.75rem;">Spotify</h2>
       @if (spotifyLinked()) {
-        <a routerLink="/spotify-user" style="padding:8px 16px; text-decoration:none; border:1px solid #ccc; border-radius:4px;">View Spotify Profile</a>
-        <button (click)="disconnectSpotify()" style="padding:8px 16px; margin-left:12px;">Disconnect Spotify</button>
+        <p class="muted" style="margin:0 0 1rem;">Connected — search tracks when you post.</p>
+        <div class="btn-row">
+          <a routerLink="/spotify-user" class="btn btn-ghost">View Spotify profile</a>
+          <button type="button" class="btn btn-ghost" (click)="disconnectSpotify()">Disconnect</button>
+        </div>
       } @else {
-        <button (click)="connectSpotify()" style="padding:8px 16px;">Connect Spotify</button>
+        <p class="muted" style="margin:0 0 1rem;">Connect Spotify to search songs for your posts.</p>
+        <button type="button" class="btn btn-primary" (click)="connectSpotify()">Connect Spotify</button>
       }
+    </div>
 
-      <button (click)="auth.logout()" style="padding:8px 16px; margin-left:12px;">Log out</button>
+    <hr class="divider" />
 
-      <hr style="margin:24px 0;" />
-
-      <nav style="display:flex; gap:12px; flex-wrap:wrap;">
-        <a routerLink="/create-post" style="padding:8px 16px; text-decoration:none; border:1px solid #1db954; border-radius:4px; color:#1db954;">
-          + Create Post
-        </a>
-        <a routerLink="/profile" style="padding:8px 16px; text-decoration:none; border:1px solid #ccc; border-radius:4px;">
-          My Profile
-        </a>
-      </nav>
-    </main>
+    <div class="btn-row">
+      <a routerLink="/create-post" class="btn btn-primary">+ Create post</a>
+      <a routerLink="/profile" class="btn btn-ghost">My profile</a>
+      <a routerLink="/search" class="btn btn-ghost">Find people</a>
+      <a routerLink="/friends" class="btn btn-ghost">Friends</a>
+    </div>
   `,
 })
 export class DashboardComponent implements OnInit {

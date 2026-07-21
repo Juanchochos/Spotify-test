@@ -8,36 +8,35 @@ import { AuthService } from './auth.service';
   standalone: true,
   imports: [FormsModule, RouterLink],
   template: `
-    <main style="max-width:400px; margin:80px auto; font-family:sans-serif; padding:0 16px;">
-      <h1>Create an account</h1>
+    <a routerLink="/" class="back-link">← Wishare</a>
+    <h1 class="page-title">Create an account</h1>
+    <p class="page-lead">Pick a username friends can find.</p>
 
-      @if (error()) {
-        <p style="color:crimson">{{ error() }}</p>
-      }
+    @if (error()) {
+      <p class="form-error">{{ error() }}</p>
+    }
 
-      <form (ngSubmit)="onSubmit()">
-        <div style="margin-bottom:12px;">
-          <label>Email<br />
-            <input type="email" [(ngModel)]="email" name="email" required style="width:100%; padding:8px; box-sizing:border-box;" />
-          </label>
-        </div>
-        <div style="margin-bottom:12px;">
-          <label>Username<br />
-            <input type="text" [(ngModel)]="username" name="username" required minlength="3" maxlength="30" style="width:100%; padding:8px; box-sizing:border-box;" />
-          </label>
-        </div>
-        <div style="margin-bottom:16px;">
-          <label>Password<br />
-            <input type="password" [(ngModel)]="password" name="password" required minlength="8" style="width:100%; padding:8px; box-sizing:border-box;" />
-          </label>
-        </div>
-        <button type="submit" [disabled]="loading()" style="width:100%; padding:10px; font-size:16px;">
-          {{ loading() ? 'Creating account...' : 'Register' }}
-        </button>
-      </form>
+    <form class="stack" style="margin-top:1.5rem;" (ngSubmit)="onSubmit()">
+      <div class="field">
+        <label for="email">Email</label>
+        <input id="email" type="email" [(ngModel)]="email" name="email" required autocomplete="email" />
+      </div>
+      <div class="field">
+        <label for="username">Username</label>
+        <input id="username" type="text" [(ngModel)]="username" name="username" required minlength="3" maxlength="30" autocomplete="username" />
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input id="password" type="password" [(ngModel)]="password" name="password" required minlength="8" autocomplete="new-password" />
+      </div>
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+        {{ loading() ? 'Creating account…' : 'Register' }}
+      </button>
+    </form>
 
-      <p style="margin-top:16px;">Already have an account? <a routerLink="/login">Log in</a></p>
-    </main>
+    <p class="muted" style="margin-top:1.5rem;">
+      Already have an account? <a routerLink="/login">Log in</a>
+    </p>
   `,
 })
 export class RegisterComponent {
